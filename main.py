@@ -53,10 +53,5 @@ async def gif(ctx):
 
 
 keep_alive()
-#TOKEN = os.getenv("MTI1MzA4NjcxMzUwNTM4NjcyNw.GQ3IE5.QPxPGg_HYThSDbIUByzaM5UHbJuDNTYXNy3hU0")
-#client.run('MTI1MzA4NjcxMzUwNTM4NjcyNw.GQ3IE5.QPxPGg_HYThSDbIUByzaM5UHbJuDNTYXNy3hU0')
 
-
-
-#https://tenor.com/view/emirmono-mittelfinger-gif-791195104924975174
 client.run(TOKEN)
