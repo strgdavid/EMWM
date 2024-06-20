@@ -47,7 +47,7 @@ async def help(ctx):
 @client.command(name='gif')#, pass_context=True)
 async def gif(ctx):
   await ctx.send('https://tenor.com/view/emirmono-mittelfinger-gif-791195104924975174')
-
+  await ctx.send('https://tenor.com/view/emirmono-mittelfinger-gif-791195104924975174')
 
 
 
