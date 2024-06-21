@@ -61,17 +61,26 @@ async def help(ctx):
 
 @client.command(name='gif')#, pass_context=True)
 async def gif(ctx):
-  await ctx.send('https://tenor.com/view/emirmono-mittelfinger-gif-791195104924975174')
-  await ctx.send('https://tenor.com/view/emirmono-mittelfinger-gif-791195104924975174')
+  #await ctx.send('https://tenor.com/view/emirmono-mittelfinger-gif-791195104924975174')
+  #await ctx.send('https://tenor.com/view/emirmono-mittelfinger-gif-791195104924975174')
+  await ctx.send()
 
-
-
+#def is_date_in_range(date, start_date, end_date):
+#   return start_date <= date <= end_date
 
 
 @client.command(name='em')
 async def em(ctx):
   date = datetime.date.today() #2024-06-20 anscheinend String
   
+  datetime_now = datetime.datetime.now()
+  dt2 = datetime.datetime(2023, 6, 20)
+  
+  if(datetime.datetime(1999, 1, 1) <= datetime_now <= datetime.datetime(2100, 1, 1)):
+    #print(dt)
+    url = 'https://www.fussballdaten.de/em/2024/gruppenphase/2-spieltag/'
+    print('ja, dazwischen') #CHECKPOINT: URL FILTER JE NACH DATUM UND DAMIT AUCH SPIELTAG/XFINALE, DATETIMES EINSTELLEN AUF FILTER
+
   
   #1. Datum überprüfen
   #2. Spiele von dem Tag pullen
