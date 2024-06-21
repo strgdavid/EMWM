@@ -1,1 +1,1 @@
-# EMWMReplit
+# EMWM Discord Bot
