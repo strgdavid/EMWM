@@ -1,9 +1,10 @@
+import os
+
 import discord
 from discord.ext import commands, tasks
 
 import em_datetime as emdt
 import em_matches as emma
-import os
 
 sent_message_ids = []
 
@@ -21,13 +22,37 @@ async def open_bets_bool():
     return open_bets_bool
 
 async def open_bets(client, match):
+
+    flags = {
+        "Deutschland": "https://vectorflags.s3.amazonaws.com/flags/de-flag-01.png",
+        "Schweiz": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/ch-flag-01.png",
+        "Italien": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/it-flag-01.png",
+        "Dänemark": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/dk-flag-01.png",
+        "England": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/uk-en-flag-01.png",
+        "Slowakei": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/sk-flag-01.png",
+        "Spanien": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/es-flag-01.png",
+        "Georgien": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/ge-flag-01.png",
+        "Frankreich": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/fr-flag-01.png",
+        "Belgien": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/be-flag-01.png",
+        "Portugal": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/pt-flag-01.png",
+        "Slowenien": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/si-flag-01.png",
+        "Rumänien": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/ro-flag-01.png",
+        "Niederlande": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/nl-flag-01.png",
+        "Österreich": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/at-flag-01.png",
+        "Türkei": "https://vectorflags.s3-us-west-2.amazonaws.com/flags/tr-flag-01.png"
+    }
+
+
+    
     land1 = match.land1
     land2 = match.land2
     #land1 = emma.get_next_match().land1
     #land2 = emma.get_next_match().land2
 
-    land1flagge = match.land1+"_flagge"
-    land2flagge = match.land2+"_flagge"
+    land1flagge = flags.get(land1, "https://default-flag-url.com")
+    land2flagge = flags.get(land2, "https://default-flag-url.com")
+
+    
     #land1flagge = emma.get_next_match().land1+"_flagge"
     #land2flagge = emma.get_next_match().land2+"_flagge"
 
@@ -44,7 +69,7 @@ async def open_bets(client, match):
         text="Wie viele Tore?",
         icon_url="https://www.flyeralarm-sports.com/bilder/kk_dropper_uploads/IQ3682_1_HARDWARE_Photography_Front_Center_View_transparent.png")
     embed1.set_thumbnail(
-        url=os.getenv(land1flagge))
+        url=land1flagge)
 
     embed2 = discord.Embed(
         description="# "+land2,
@@ -54,9 +79,9 @@ async def open_bets(client, match):
         icon_url="https://www.flyeralarm-sports.com/bilder/kk_dropper_uploads/IQ3682_1_HARDWARE_Photography_Front_Center_View_transparent.png")
         
     embed2.set_thumbnail(
-        url=os.getenv(land2flagge))
+        url=land2flagge)
 
-    print(land1flagge)
+    #print(land1flagge)
     
 
     # Nachrichten erstellen
