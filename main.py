@@ -5,13 +5,19 @@ import os
 import random
 import re
 
+import aiohttp
 import discord
+import pytz
 import requests
+import t
 from bs4 import BeautifulSoup
 from discord.ext import commands, tasks
 from discord.flags import Intents
 from dotenv import load_dotenv
 
+import em_bets as embe
+import em_datetime as emdt
+import em_matches as emma
 from webserver import keep_alive
 
 #variablen
@@ -24,12 +30,36 @@ client =  commands.Bot(command_prefix=commands.when_mentioned_or("?"), help_comm
 client.remove_command('help')
 prefix = "?"
 
+tipp = False
+em_channel_id = os.getenv('DISCORD_EM_CHANNEL_ID')
+
+
+
+
+
+
 
 @client.event
 async def on_ready():
     print(f"{client.user.name} is online")
     print(f"id: {client.user.id}")
+    #send_message_loop.start()
+    em_matches_loop.start()
+
+
+
+    
     await status_task()
+    #test1.start()
+    #send_message_loop.start()
+
+
+
+
+
+
+
+
 
 
 async def status_task():
@@ -42,6 +72,8 @@ async def status_task():
                                                              name = 'Entwicklungsphase',
                                                              state = 'In der Entwicklungsphase'))
       await asyncio.sleep(8)
+      #if tipp == False:
+        
 
 
 @client.command(name='help')#, pass_context=True)
@@ -65,117 +97,339 @@ async def gif(ctx):
 
 #def is_date_in_range(date, start_date, end_date):
 #   return start_date <= date <= end_date
+@client.command(name='clearchannel')
+@commands.has_permissions(manage_messages=True)  # Optional: requires the user to have manage messages permissions
+async def clear_channel(ctx, amount: int):
+    await ctx.channel.purge(limit=amount)
+    await ctx.send(f"Deleted {amount} messages.", delete_after=5)  # Optional: sends a confirmation message and deletes it after 5 seconds
+
+  
+def text1():
+  return "text1"
 
 
-@client.command(name='em')
-async def em(ctx):
-  date = datetime.date.today() #2024-06-20 anscheinend String
+
+
+@client.command(name='heutefake')
+async def heutefake(ctx):
+  date_now_str = emdt.get_date_now_str()
+
+  matchObj_list = emma.get_spieltag_matches()
+
+  #print(matchObj_list)
   
-  datetime_now = datetime.datetime.now()
-  dt2 = datetime.datetime(2023, 6, 20)
-  
-  if (datetime.datetime(1999, 1, 1) <= datetime_now <= datetime.datetime(2024, 6, 22)): #2. Spieltag bis 22.06.2024
-    url = 'https://www.fussballdaten.de/em/2024/gruppenphase/2-spieltag/'
-  elif (datetime.datetime(2024, 6, 23) <= datetime_now <= datetime.datetime(2024, 6, 26)): #3. Spieltag 23.06.2024-26.06.2024
-    url = 'https://www.fussballdaten.de/em/2024/gruppenphase/3-spieltag/'
-  elif (datetime.datetime(2024, 6, 27) <= datetime_now <= datetime.datetime(2024, 7, 2)): #Achtel 29.06.2024-02.07.2024
-    url = 'https://www.fussballdaten.de/em/2024/achtelfinale/'
-  elif (datetime.datetime(2024, 7, 3) <= datetime_now <= datetime.datetime(2024, 7, 6)): #Viertel 05.07.2024-06.07.2024
-    url = 'https://www.fussballdaten.de/em/2024/viertelfinale/'
-  elif (datetime.datetime(2024, 7, 7) <= datetime_now <= datetime.datetime(2024, 7, 10)): #Halb 09.07.2024-10.07.2024
-    url = 'https://www.fussballdaten.de/em/2024/halbfinale/'
-  elif (datetime.datetime(2024, 7, 11) <= datetime_now <= datetime.datetime(2024, 7, 14)): #Finale 14.07.2024
-    url = 'https://www.fussballdaten.de/em/2024/finale/'
-  else:
-    url = 'https://www.fussballdaten.de/em/2024/finale/'
+  for match in matchObj_list:
+    #print(match.datum)
     
-    #CHECKPOINT: URL FILTER JE NACH DATUM UND DAMIT AUCH SPIELTAG/XFINALE, DATETIMES EINSTELLEN AUF FILTER
+    if match.datum == "29.06.2024":
+      await ctx.send(match)
 
-    
-  
+@client.command(name='heute')
+async def heute(ctx):
+    date_now_str = emdt.get_date_now_str()
 
-  
-  #1. Datum überprüfen
-  #2. Spiele von dem Tag pullen
-  #3. (schauen ob bald ein Spiel gespielt wird) kurz vor einem Spiel neue Wette eröffnen, Nachricht senden
-  #4. bei der Nachricht anhand von Reaktionen wetten festlegen, wetten bis vor Spielbeginn akzeptieren, ändern können, neue wett-nachrichten schreiben zur bestätigung
-  #5. bei halbzeit eventuell zwischenstand zeigen wer am nächsten dran ist
-  #6. nach dem spiel das ergebnis festhalten, variablen in einer spielertabelle im code addieren/aktualisieren, nachricht des punktezuwachses schicken, zusätzlich punktestand
-  # (zusätzliche befehle einbauen wie "leaderboard","historie {player}", "spiele-liste")
+    matchObj_list = emma.get_spieltag_matches()
 
-  
-  
+    #print(matchObj_list)
 
-  
-  #url = 'https://www.fussballdaten.de/em/2024/gruppenphase/2-spieltag/'
-  html = requests.get(url)
-  
-  s = BeautifulSoup(html.content, 'html.parser')
+    for match in matchObj_list:
+    #print(match.datum)
 
-  results = s.find(id = 'page-content')
-  spielplan = results.find(class_ = 'content-spiele')
-  spiel_titel = spielplan.find(class_ = 'spiele-row detils')
-  
-  spiel_titel_pl = spielplan.find_all(class_ = 'spiele-row detils')
+        if match.datum == date_now_str:
+            await ctx.send(match)
 
-  spiel_titel_pl_list = list(spiel_titel_pl)
-  
-  ###
-  #spiel_titel_pl = spielplan.find_next(class_ = 'spiele-row detils')
-  #spiel_titel_pl = spiel_titel.find
-  ###
-  
-  n_spiele = len(spielplan.find_all(class_ = 'spiele-row detils'))
+@client.command(name='nextmatch')
+async def nextmatch(ctx):
+    message = emma.get_next_match()
+    if message.land1 != "":
+        await ctx.send(message)
+    else:
+        await ctx.send("Kein nächstes Match")
 
-
-  for i in range(n_spiele):
-    
-  
-  
-    #result = re.split(r'([A-Za-z]+)(\d+:\d+)(\d+:\d+)([A-Za-z]+)([A-Z])', spiel_titel_pl_list[i].text) #spiel_titel ##########################
-  
-    ###
-    #info_x = ""
-    #for x in range(n_spiele):
-    #  info_x = info_x + f"{result[x]} "
-
-
-    land_1 = ""
-    ergebnis = ""
-    ergebnis_halb = ""
-    land_2 = ""
-    
-    #land_1 = result[1]
-    #ergebnis = result[2]
-    #ergebnis_halb = result[3]
-    #land_2 = result[4]
-  
-    #title_content = spiel_titel_pl_list[i].find(class_='ergebnis')['title'] #spiel_titel
-  
-    #spiel_datum = re.search(r'\((\d{2}\.\d{2}\.\d{4})', title_content).group(1)
-  
-    #nachricht = f"{spiel_datum}: {land_1} gegen {land_2}: {ergebnis} ({ergebnis_halb})"
-    
-    await ctx.send(spiel_titel_pl_list[i].text)
-    #await ctx.send(spiel_titel_2)
-  
-    #print(spiel_titel_pl_list[1].text)
-    
-    #await ctx.send(f"{info_x} {spiel_datum}")
-    
-  #for i in range(n_spiele):
+@client.command(name='today')
+async def today(ctx):
+    message = emma.get_matches_today()
+    for match in message:
+        await ctx.send(match)
     
 
-  
+
+
+##############################################
+
+@client.command(name='openbets')
+async def open_bets(ctx, client=client, match=emma.get_next_match()):
+    pmatch = match if match else emma.get_next_match()
+    await embe.open_bets(client, pmatch)
+
+@client.command(name='openbetstest')
+async def open_bets_test(ctx, client=client, match=emma.get_next_match()):
+    await embe.open_bets(client, match)
+
+@client.command(name='clearbets')
+async def clear_bets(ctx, client=client):
+    await embe.clear_bets(ctx, client)
+
+@client.command(name='cleartxt')
+async def clear_txt(ctx):
+    await embe.clear_txt(ctx)
+
+#@client.command(name='updatescores')
+#async def update_scores(match):
+#    await embe.update_scores(match) #kann nur vom bot benutzt werden, intern
+
+@client.event
+async def on_reaction_add(reaction, user):
+    await embe.on_reaction_add(reaction, user)
+
+async def process_reaction(reaction, user, country): #, bool = embe.process_reactions_bool
+    await embe.process_reaction(reaction, user, country)
+
+
+
+
+######################################################################################
+
+async def test():
+    channel = client.get_channel(int(os.getenv('DISCORD_EM_CHANNEL_ID')))
+    if channel:
+        await channel.send("gerade minutenzahl")
+    else:
+        print('Kanal nicht gefunden')
+
+
+@tasks.loop(seconds=10)
+async def test1():
+    #channel = client.get_channel(int(os.getenv('DISCORD_EM_CHANNEL_ID')))
+    channel = client.get_channel(1255542883243659436)
+    #now = datetime.now()
+    #if now.minute % 2 == 0:
+    await channel.send("yes")
+
+
+CHANNEL_ID=1255542883243659436
+@tasks.loop(minutes=1)
+async def send_message_loop():
+    channel = client.get_channel(CHANNEL_ID)
+    if channel:
+        await channel.send(emdt.get_time_now_packed())
+    else:
+        print(f"Kanal mit der ID {CHANNEL_ID} nicht gefunden")
+
+
+@client.command(name='updatescores')
+async def update_scores(ctx):
+    await embe.update_scores(ctx)
+
+
+
+
+bets_bet_is_open = False
+bets_time_up = False
+
+
+
+
+
+em_matches_in_loops = []
+
+
+@tasks.loop(minutes=1)
+async def em_matches_loop(): #ctx, client=client
+    #print("test")
+    #global em_matches_in_loops
+    
+    channel = client.get_channel(1255542883243659436)
+    next_match = emma.get_next_match()
+    time_next_match_packed = int(next_match.uhrzeit.replace(":", ""))
+    time_now_packed = emdt.get_time_now_packed()
+    
+    if time_next_match_packed - time_now_packed < 300 and (next_match.land1+next_match.land2) not in em_matches_in_loops:
+        #em_matches_in_loops.append(next_match)
+        loop = create_new_em_loop(channel, next_match)
+        loop.start()
+        print(em_matches_in_loops)
+        
+    
+    #send_message_loop.start()
+    
+    # next_match = emma.get_next_match()
+    # time_next_match_packed = int(next_match.uhrzeit.replace(":", ""))
+    # time_now_packed = emdt.get_time_now_packed()
+    # if time_next_match_packed - time_now_packed < 100:
+
+def create_new_em_loop(channel, match):
+    @tasks.loop(minutes=1)
+    async def test_loop():
+        
+        #global em_matches_in_loops
+        time_match_packed = int(match.uhrzeit.replace(":", ""))
+        time_now_packed = emdt.get_time_now_packed()
+        
+        if (match.land1+match.land2) not in em_matches_in_loops:
+            await embe.open_bets(client, match)
+            em_matches_in_loops.append(match.land1+match.land2)
+        #if channel:
+        #    await channel.send("test")
+        if -10 <= time_match_packed - time_now_packed <= 0 and match in em_matches_in_loops:
+            await embe.clear_bets(channel, client)
+        if time_match_packed - time_now_packed <= -130 and match.ergebnis.replace(" ","") != "-:-": #mit einer methode überprüfen oder bei beiden .strip() benutzen
+            await embe.update_scores(match)
+            leaderboard_channel = client.get_channel(1256976133254152346)
+            await embe.update_leaderboard_message(channel)
+            
+
+    return test_loop
+
+
+
+
+@client.command(name='test1234')
+async def test1234(ctx):
+    #match = emma.get_next_match()
+    # await ctx.send(match.ergebnis.split(":")[0])
+    # await ctx.send(match.ergebnis.split(":")[1])
+    # await ctx.send("test"+match.ergebnis.split(":")[0]+"test")
+    # await ctx.send("test"+match.ergebnis.split(":")[1]+"test")
+    # await ctx.send("test"+match.ergebnis.replace(" ","")+"test")
+    #await ctx.send(int(match.ergebnis.replace(" ","").split(":")[0]))
+    #torre1 = match.ergebnis.replace(" ","").split(":")[0]
+    #tore1 = int(torre1)
+    #torre2 = match.ergebnis.replace(" ","").split(":")[1]
+    #tore2 = int(torre2)
+    
+    #await ctx.send(tore1)
+    #await ctx.send(tore2) #versucht bindestrick in int umzuwandeln, geht nicht aber würde gehen
+    ergebnis = "2 : 1"
+    zore1 = int(ergebnis.replace(" ","").split(":")[0])
+    zore2 = int(ergebnis.replace(" ","").split(":")[1])
+    await ctx.send(zore1)
+    await ctx.send(zore2)
+    await ctx.send("test{}test{}test".format(zore1,zore2))
+    await ctx.send(zore1+zore2)
+
+
+
+    #await ctx.send("test{}test".format(int(match.ergebnis.replace(" ","").split(":")[0])))
+    #await ctx.send("test{}test".format(int(match.ergebnis.replace(" ","").split(":")[1])))
+     #print("test"+emdt.get_date_now_str()+"test")
+    #print("test"+"29.06.2024"+"test")
+    
+    # match = emma.get_next_match()
+    # print("AB HIER")
+    
+    # print(match.land1)
+    # print(match.land2)
+    # print(match.datum)
+    # print(match.uhrzeit)
+    # print(match.ergebnis)
+    
+    # print(emma.get_next_match_fake())
+    
+    #DER FEHLER IST IN DER DEFINITION DES MATCHES, ER ZÄHLT DIE ZEICHEN VON RECHTS ODER SO, HAB DEN STRING GEÄNDERT UND JETZT STEHT DA " vs.  | " STATT "18:00" ODER SOWAS
+    
 
 
 
 
 
 
-  
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@client.command(name='updateleaderboard')
+async def update_leaderboard_message(ctx):
+    await embe.update_leaderboard_message(ctx)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Aufgabe, die jede Minute ausgeführt wird
+# @tasks.loop(minutes=1)
+# async def bets_loop():
+    
+
+
+
+#async def 
+
+
+
+
+
+        
+    
+    #await channel.send("test funktioniert")
+    
+
+
+
+
+
+
+    #message = emdt.get_date_now_str() + " " + emdt.get_time_now()
+    #match = emma.get_next_match_fake()
+    #land1 = match.land1
+    #land2 = match.land2
+
+
+    #await ctx.send(land1 + land2)   
+    #print(message)
+
+
+    
+
+    
+    #a = "15:41"
+    #b = a.replace(":","")
+    #c = int(b)
+    #print(c)
+    #await ctx.send(c)
 
 
 

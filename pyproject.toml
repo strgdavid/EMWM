@@ -11,6 +11,11 @@ flask = "^3.0.3"
 python-dotenv = "^1.0.1"
 beautifulsoup4 = "^4.12.3"
 requests = "^2.32.3"
+matches = "^0.0.1"
+pytz = "^2024.1"
+aiohttp = "^3.9.5"
+kcpy = "^0.1.7"
+py-football = "^1.0.4"
 
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md

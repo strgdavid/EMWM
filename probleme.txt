@@ -1,0 +1,9 @@
+wenn der bot läuft und zumindest ?openbets aufgerufen wird gibt es keine richtige methode die die wetten stoppt
+die methode ?clearmessage nimmt den nutzern die möglichkeit zu wetten zwar aus den augen, wer aber vermutet
+dass der code so simpel aufgebaut ist wie er tatsächlich ist, so schreibt der nutzer seine eigene nachricht
+namens {land} und reagiert auf die nachricht mit wie er möchte, obwohl die wetten mit ?clearmessage beendet wurden
+
+--> methode einführen, die die reaktionen ab aktivierung ignoriert
+oder
+--> openbets methode modifizieren, sodass sie sich nur die reaktionen der spezifischen nachricht des bots anschaut
+
