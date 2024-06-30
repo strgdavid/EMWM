@@ -1,4 +1,0 @@
-strgdavid(759391893863399444):Deutschland.2
-strgdavid(759391893863399444):Frankreich.1
-strgdavid(759391893863399444):Schweiz.2
-strgdavid(759391893863399444):Italien.1
