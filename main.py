@@ -276,7 +276,7 @@ def create_new_em_loop(channel, match):
         if time_match_packed - time_now_packed <= -130 and match.ergebnis.replace(" ","") != "-:-": #mit einer methode überprüfen oder bei beiden .strip() benutzen
             await embe.update_scores(match)
             leaderboard_channel = client.get_channel(1256976133254152346)
-            await embe.update_leaderboard_message(channel)
+            await embe.update_leaderboard_message(leaderboard_channel)
             
 
     return test_loop
