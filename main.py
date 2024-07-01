@@ -241,10 +241,16 @@ async def em_matches_loop(): #ctx, client=client
     
     channel = client.get_channel(1255542883243659436)
     next_match = emma.get_next_match()
-    time_next_match_packed = int(next_match.uhrzeit.replace(":", ""))
+    if next_match.uhrzeit:
+        try:
+            time_next_match_packed = int(next_match.uhrzeit.replace(':', ''))
+        except ValueError:
+            print(f"Invalid time format for next match: {next_match.uhrzeit}")
+            return
+            
     time_now_packed = emdt.get_time_now_packed()
     
-    if time_next_match_packed - time_now_packed < 300 and (next_match.land1+next_match.land2) not in em_matches_in_loops:
+    if next_match.uhrzeit and time_next_match_packed - time_now_packed < 300 and (next_match.land1+next_match.land2) not in em_matches_in_loops:
         #em_matches_in_loops.append(next_match)
         loop = create_new_em_loop(channel, next_match)
         loop.start()
